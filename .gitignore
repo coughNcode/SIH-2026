@@ -1,0 +1,16 @@
+# Dependencies
+.venv/
+__pycache__/
+
+# Data
+data/
+outputs/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Build
+backend/*.exe
+backend/*.obj
+backend/*.pdb
