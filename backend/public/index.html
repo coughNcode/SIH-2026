@@ -3,168 +3,161 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-  <title>DepthWizard — Urban DEM Reconstruction</title>
-  <meta name="description" content="Single-view RGB to metric height map — DepthWizard, SIH 2026, ISRO"/>
+  <title>DepthWizard — Urban DEM Reconstruction · SIH 2026</title>
+  <meta name="description" content="Single-view RGB to metric height map using Prompt2DEM approach. SIH 2026 ISRO."/>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="/static/style.css"/>
 </head>
 <body>
-<!-- TOPBAR -->
-<header class="topbar">
-  <div class="topbar-brand">
-    <svg class="brand-icon" viewBox="0 0 32 32" fill="none">
-      <rect width="32" height="32" rx="8" fill="#1a56db"/>
-      <path d="M4 24L10 10L15 19L20 13L28 24H4Z" fill="white" opacity="0.92"/>
-      <circle cx="21" cy="8" r="3" fill="#60a5fa"/>
-    </svg>
-    <div>
-      <span class="brand-name">DepthWizard</span>
-      <span class="brand-sub">Urban DEM Reconstruction · SIH 2026 · ISRO</span>
+
+<!-- HEADER -->
+<header class="header">
+  <div class="header-left">
+    <div class="logo">
+      <svg viewBox="0 0 36 36" fill="none">
+        <rect width="36" height="36" rx="9" fill="#2563eb"/>
+        <path d="M5 27L11 11L17 21L23 14L31 27H5Z" fill="white" opacity="0.9"/>
+        <circle cx="24" cy="9" r="3.5" fill="#93c5fd"/>
+      </svg>
+    </div>
+    <div class="header-text">
+      <span class="header-title">DepthWizard</span>
+      <span class="header-sub">Urban DEM Reconstruction · SIH 2026 · ISRO SIH26175</span>
     </div>
   </div>
-  <div class="topbar-right">
-    <span class="chip chip-blue" id="modelChip">HeightNet · DA-V2 Small</span>
-    <span class="chip chip-green" id="deviceChip">Loading…</span>
+  <div class="header-right">
+    <span class="badge badge-blue" id="modelBadge">Depth-Anything V2 Small</span>
+    <span class="badge badge-green" id="deviceBadge">Checking GPU…</span>
   </div>
 </header>
 
-<!-- MAIN -->
-<main class="layout">
+<!-- MAIN LAYOUT -->
+<main class="main">
 
-  <!-- LEFT PANEL -->
-  <aside class="left-panel">
+  <!-- LEFT SIDEBAR -->
+  <aside class="sidebar">
 
     <!-- Upload -->
-    <section class="card" id="uploadCard">
-      <h2 class="card-title"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM6.293 6.707a1 1 0 010-1.414l3-3a1 1 0 011.414 0l3 3a1 1 0 01-1.414 1.414L11 5.414V13a1 1 0 11-2 0V5.414L7.707 6.707a1 1 0 01-1.414 0z" clip-rule="evenodd"/></svg>Upload Image</h2>
-      <div class="dropzone" id="dropzone" tabindex="0" role="button" aria-label="Upload image">
-        <input type="file" id="fileInput" accept="image/*" hidden/>
-        <div class="dropzone-inner" id="dzInner">
-          <svg class="drop-icon" viewBox="0 0 48 48" fill="none">
+    <div class="card" id="uploadCard">
+      <div class="card-title">
+        <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM6.293 6.707a1 1 0 010-1.414l3-3a1 1 0 011.414 0l3 3a1 1 0 01-1.414 1.414L11 5.414V13a1 1 0 11-2 0V5.414L7.707 6.707a1 1 0 01-1.414 0z" clip-rule="evenodd"/></svg>
+        Upload Aerial Image
+      </div>
+      <div class="dropzone" id="dropzone" tabindex="0" role="button">
+        <input type="file" id="fileInput" accept="image/*,.tif,.tiff" hidden/>
+        <div class="dz-inner" id="dzInner">
+          <svg class="dz-icon" viewBox="0 0 48 48" fill="none">
             <circle cx="24" cy="24" r="22" fill="#eff6ff"/>
-            <path d="M24 14v14M17 21l7-7 7 7" stroke="#1a56db" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M24 14v14M17 21l7-7 7 7" stroke="#2563eb" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
             <path d="M14 34h20" stroke="#93c5fd" stroke-width="2" stroke-linecap="round"/>
           </svg>
-          <p class="drop-text">Drag & drop aerial image</p>
-          <p class="drop-sub">or <span class="drop-link">click to browse</span></p>
-          <p class="drop-hint">PNG · JPEG · GeoTIFF (RGB)</p>
+          <p class="dz-text">Drag & drop aerial image</p>
+          <p class="dz-hint">PNG · JPEG · GeoTIFF</p>
         </div>
-        <canvas id="previewCanvas" class="preview-canvas" style="display:none"></canvas>
+        <canvas id="previewCanvas" style="display:none;"></canvas>
       </div>
-      <button class="btn btn-primary" id="runBtn" disabled>
+      <button class="btn-primary" id="runBtn" disabled>
         <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"/></svg>
         Generate Height Map
       </button>
-      <div id="statusWrap" style="display:none">
-        <div class="prog-track"><div class="prog-fill" id="progFill"></div></div>
-        <p id="statusMsg" class="status-msg"></p>
+      <div id="statusBar" style="display:none">
+        <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+        <p class="status-text" id="statusText"></p>
       </div>
-    </section>
+    </div>
 
-    <!-- Metrics -->
-    <section class="card">
-      <h2 class="card-title"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z"/></svg>Model Validation Metrics</h2>
-      <div class="metrics-grid" id="metricsGrid"><p class="muted">Loading…</p></div>
-      <p class="card-note">300 held-out DFC2019 JAX patches vs. LiDAR ground truth</p>
-    </section>
-
-    <!-- Inference result -->
-    <section class="card" id="resultCard" style="display:none">
-      <h2 class="card-title"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/></svg>Inference Result</h2>
-      <div class="result-stats" id="resultStats"></div>
-    </section>
-
-    <!-- Inspect -->
-    <section class="card" id="inspectCard" style="display:none">
-      <h2 class="card-title"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"/></svg>Click-to-Inspect</h2>
-      <div id="inspectContent"><p class="muted" style="font-size:12px">Click the terrain to inspect height at any point.</p></div>
-    </section>
-
-    <!-- 3D controls -->
-    <section class="card" id="ctrlCard" style="display:none">
-      <h2 class="card-title"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M11 17a1 1 0 001.447.894l4-2A1 1 0 0017 15V9.236a1 1 0 00-1.447-.894l-4 2a1 1 0 00-.553.894V17zM15.211 6.276a1 1 0 000-1.788l-4.764-2.382a1 1 0 00-.894 0L4.789 4.488a1 1 0 000 1.788l4.764 2.382a1 1 0 00.894 0l4.764-2.382zM4.447 8.342A1 1 0 003 9.236V15a1 1 0 00.553.894l4 2A1 1 0 009 17v-5.764a1 1 0 00-.553-.894l-4-2z"/></svg>3D View Controls</h2>
-      <div class="slider-group">
-        <div class="slider-row">
-          <span>Height exaggeration</span>
-          <div class="slider-right">
-            <input type="range" id="exagSlider" min="0.5" max="10" step="0.25" value="4"/>
-            <span id="exagVal" class="mono">4.0×</span>
-          </div>
-        </div>
-        <div class="slider-row">
-          <span>Wireframe</span>
-          <label class="toggle-switch">
-            <input type="checkbox" id="wireframeToggle"/>
-            <span class="toggle-thumb"></span>
-          </label>
-        </div>
+    <!-- Results Stats -->
+    <div class="card" id="statsCard" style="display:none">
+      <div class="card-title">
+        <svg viewBox="0 0 20 20" fill="currentColor"><path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z"/></svg>
+        Prediction Results
       </div>
-      <div class="view-toggle">
-        <button class="vbtn active" id="vbtn3d">3D Terrain</button>
-        <button class="vbtn" id="vbtnhs">Hillshade</button>
-        <button class="vbtn" id="vbtnrgb">RGB</button>
+      <div id="statsList"></div>
+    </div>
+
+    <!-- Model Info -->
+    <div class="card">
+      <div class="card-title">
+        <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/></svg>
+        Model Info
       </div>
-    </section>
+      <div class="info-list">
+        <div class="info-row"><span>Architecture</span><span class="mono">Prompt2DEM</span></div>
+        <div class="info-row"><span>Backbone</span><span class="mono">DA-V2 Small</span></div>
+        <div class="info-row"><span>Dataset</span><span class="mono">DFC2019 JAX</span></div>
+        <div class="info-row"><span>Target</span><span class="mono">Urban AGL (m)</span></div>
+      </div>
+    </div>
 
   </aside>
 
-  <!-- RIGHT: VIEWER -->
-  <section class="viewer-panel">
-    <!-- IM2ELEVATION result panels (shown after inference) -->
-    <div class="im2elev-panels" id="im2elevPanels" style="display:none">
-      <div class="panel-row">
-        <div class="im2panel" id="p_rgb">
-          <div class="panel-label">RGB Input</div>
-          <canvas class="panel-canvas" id="c_rgb"></canvas>
+  <!-- RIGHT VIEWER -->
+  <section class="viewer">
+
+    <!-- Empty state -->
+    <div class="empty-state" id="emptyState">
+      <svg viewBox="0 0 120 80" fill="none">
+        <rect width="120" height="80" rx="8" fill="#f1f5f9"/>
+        <path d="M10 62L24 30L36 48L52 34L74 56L92 38L110 62H10Z" fill="#bfdbfe"/>
+        <path d="M10 62L24 30L36 48L52 34L74 56L92 38L110 62" stroke="#2563eb" stroke-width="2" fill="none"/>
+        <circle cx="74" cy="18" r="8" fill="#fde68a" stroke="#f59e0b" stroke-width="2"/>
+      </svg>
+      <p class="empty-title">No terrain loaded</p>
+      <p class="empty-sub">Upload an aerial or satellite image to generate a predicted Digital Elevation Model</p>
+    </div>
+
+    <!-- 4-panel grid (shown after inference) -->
+    <div class="panels" id="panels" style="display:none">
+      <div class="panel-header">
+        <span class="panel-header-title">Prompt2DEM — 4-Panel Output</span>
+        <div class="view-btns">
+          <button class="vbtn active" id="vbtnGrid">4-Panel Grid</button>
+          <button class="vbtn" id="vbtn3D">3D Terrain</button>
         </div>
-        <div class="im2panel" id="p_hs">
-          <div class="panel-label green-label">Predicted Height Map</div>
-          <canvas class="panel-canvas" id="c_hs"></canvas>
-          <div class="panel-legend">
-            <span class="pl-min">0 m</span>
-            <div class="pl-bar"></div>
-            <span class="pl-max" id="plMax">30 m</span>
+      </div>
+      <div class="panel-grid" id="panelGrid">
+        <div class="panel-cell">
+          <div class="panel-label">RGB Input</div>
+          <canvas class="panel-canvas" id="cRgb"></canvas>
+        </div>
+        <div class="panel-cell">
+          <div class="panel-label turbo">Predicted Elevation (Turbo)</div>
+          <canvas class="panel-canvas" id="cDem"></canvas>
+          <div class="colorbar">
+            <span id="demMin">0 m</span>
+            <div class="cbar turbo-bar"></div>
+            <span id="demMax">30 m</span>
           </div>
+        </div>
+        <div class="panel-cell">
+          <div class="panel-label gray">Hillshade (Grey Relief)</div>
+          <canvas class="panel-canvas" id="cHs"></canvas>
+        </div>
+        <div class="panel-cell">
+          <div class="panel-label normals">Surface Normals</div>
+          <canvas class="panel-canvas" id="cNorm"></canvas>
         </div>
       </div>
     </div>
 
-    <!-- 3D viewer (always in DOM, hidden until needed) -->
-    <div class="canvas-holder" id="canvasHolder">
-      <div class="empty-state" id="emptyState">
-        <svg viewBox="0 0 100 70" fill="none">
-          <rect width="100" height="70" rx="6" fill="#eff6ff"/>
-          <path d="M8 56L20 26L30 42L44 30L62 50L78 34L92 56H8Z" fill="#bfdbfe"/>
-          <path d="M8 56L20 26L30 42L44 30L62 50L78 34L92 56" stroke="#1a56db" stroke-width="1.5" fill="none"/>
-          <circle cx="62" cy="18" r="6" fill="#fde68a" stroke="#f59e0b" stroke-width="1.5"/>
-        </svg>
-        <p class="empty-title">No terrain loaded</p>
-        <p class="empty-sub">Upload an aerial or satellite image to generate a metric height map and 3D terrain</p>
-      </div>
-      <div class="viewer-hud" id="viewerHud" style="display:none">
-        <span class="hud-chip" id="metaHint"></span>
-        <span class="hud-chip" id="rangeHint"></span>
-      </div>
-      <div class="hs-legend" id="hsLegend" style="display:none">
-        <span class="hs-label">0 m</span>
-        <div class="hs-bar"></div>
-        <span class="hs-label" id="hsMax">30 m</span>
-      </div>
+    <!-- 3D viewer -->
+    <div class="canvas3d" id="canvas3d" style="display:none">
+      <div id="three-mount"></div>
+      <div class="hud3d" id="hud3d"></div>
     </div>
 
     <!-- Loading overlay -->
     <div class="loading-overlay" id="loadingOverlay" style="display:none">
-      <div class="loader-ring"></div>
+      <div class="spinner"></div>
       <p id="loaderMsg">Running inference…</p>
     </div>
-  </section>
 
+  </section>
 </main>
 
 <footer class="footer">
-  DepthWizard · SIH 2026 · ISRO SIH26175 · DFC2019 Track 1 · HeightNet = Depth Anything V2 Small (Fine-tuned on JAX urban LiDAR)
+  DepthWizard · SIH 2026 · ISRO SIH26175 · DFC2019 Track 1 · Prompt2DEM approach · Depth-Anything V2 Small backbone
 </footer>
 
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.165.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.165.0/examples/jsm/"}}</script>
