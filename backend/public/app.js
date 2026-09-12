@@ -158,8 +158,26 @@ function drawB64ToCanvas(canvas, b64) {
   });
 }
 
+// ── WebGL detection ──────────────────────────────────────────────
+function isWebGLAvailable() {
+  try {
+    const canvas = document.createElement("canvas");
+    return !!(window.WebGLRenderingContext &&
+      (canvas.getContext("webgl") || canvas.getContext("experimental-webgl")));
+  } catch { return false; }
+}
+
+if (!isWebGLAvailable()) {
+  vbtn3D.disabled = true;
+  vbtn3D.title    = "WebGL not supported in this browser";
+  vbtn3D.style.opacity = "0.4";
+  vbtn3D.style.cursor  = "not-allowed";
+  vbtn3D.textContent   = "3D (Unavailable)";
+}
+
 // ── View mode ─────────────────────────────────────────────────────
 function setViewMode(mode) {
+  if (mode === "3d" && !isWebGLAvailable()) return;
   vbtnGrid.classList.toggle("active", mode === "grid");
   vbtn3D.classList.toggle("active",   mode === "3d");
   panelGrid.style.display = mode === "grid" ? "grid"  : "none";
@@ -171,39 +189,41 @@ vbtn3D.addEventListener("click",   () => setViewMode("3d"));
 
 // ── Three.js 3D ────────────────────────────────────────────────────
 let renderer, scene, camera, controls, terrainMesh;
+let webglFailed = false;
 
 function initThree() {
-  if (renderer) return;
-  scene = new THREE.Scene();
-  scene.background = new THREE.Color(0x111a22);
-  scene.fog = new THREE.FogExp2(0x111a22, 0.005);
+  if (renderer || webglFailed) return;
+  try {
+    scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x111a22);
+    scene.fog = new THREE.FogExp2(0x111a22, 0.005);
 
-  const w = threeMnt.clientWidth  || 800;
-  const h = threeMnt.clientHeight || 600;
+    const w = threeMnt.clientWidth  || 800;
+    const h = threeMnt.clientHeight || 600;
 
-  camera = new THREE.PerspectiveCamera(50, w / h, 0.1, 2000);
-  camera.position.set(0, 90, 150);
+    camera = new THREE.PerspectiveCamera(50, w / h, 0.1, 2000);
+    camera.position.set(0, 90, 150);
 
-  renderer = new THREE.WebGLRenderer({ antialias: true });
-  renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
-  renderer.setSize(w, h);
-  renderer.shadowMap.enabled = true;
-  threeMnt.appendChild(renderer.domElement);
+    renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: "high-performance" });
+    renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+    renderer.setSize(w, h);
+    renderer.shadowMap.enabled = true;
+    threeMnt.appendChild(renderer.domElement);
 
-  controls = new OrbitControls(camera, renderer.domElement);
-  controls.enableDamping = true;
-  controls.dampingFactor = 0.06;
-  controls.minDistance   = 10;
-  controls.maxDistance   = 500;
+    controls = new OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.06;
+    controls.minDistance   = 10;
+    controls.maxDistance   = 500;
 
-  const hemi = new THREE.HemisphereLight(0x334455, 0x112233, 0.7);
-  scene.add(hemi);
-  const sun = new THREE.DirectionalLight(0xffeedd, 2.0);
-  sun.position.set(80, 150, 60);
-  sun.castShadow = true;
-  scene.add(sun);
+    const hemi = new THREE.HemisphereLight(0x334455, 0x112233, 0.7);
+    scene.add(hemi);
+    const sun = new THREE.DirectionalLight(0xffeedd, 2.0);
+    sun.position.set(80, 150, 60);
+    sun.castShadow = true;
+    scene.add(sun);
 
-  window.addEventListener("resize", () => {
+    window.addEventListener("resize", () => {
     if (!renderer) return;
     const w2 = threeMnt.clientWidth, h2 = threeMnt.clientHeight;
     camera.aspect = w2 / h2;
@@ -216,11 +236,30 @@ function initThree() {
     controls.update();
     renderer.render(scene, camera);
   })();
+
+  } catch (err) {
+    webglFailed = true;
+    console.warn("WebGL init failed:", err);
+    // Disable the 3D button gracefully
+    vbtn3D.disabled = true;
+    vbtn3D.textContent = "3D (Unavailable)";
+    vbtn3D.style.opacity = "0.4";
+    vbtn3D.style.cursor  = "not-allowed";
+    vbtn3D.title = "WebGL not available on this system";
+    // Show canvas3d error message
+    threeMnt.innerHTML = `
+      <div style="display:flex;align-items:center;justify-content:center;height:100%;color:#94a3b8;flex-direction:column;gap:12px;font-family:sans-serif">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <p style="font-size:14px;font-weight:600">WebGL not available</p>
+        <p style="font-size:12px;text-align:center;max-width:260px">3D terrain is unavailable on this system. Use the 4-Panel Grid view instead.</p>
+      </div>`;
+  }
 }
 
 async function buildTerrain(data) {
+  if (webglFailed || !isWebGLAvailable()) return;  // skip silently — 4-panel grid still works
   initThree();
-
+  if (!renderer) return;
   if (terrainMesh) {
     scene.remove(terrainMesh);
     terrainMesh.geometry.dispose();
