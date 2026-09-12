@@ -131,7 +131,7 @@ runBtn.addEventListener("click", async () => {
       <div class="info-row"><span>Height range</span><span class="mono">${data.pred_min_m.toFixed(2)} – ${data.pred_max_m.toFixed(2)} m</span></div>
       <div class="info-row"><span>Mean height</span><span class="mono">${data.pred_mean_m.toFixed(2)} m</span></div>
       <div class="info-row"><span>Grid size</span><span class="mono">${gridW} × ${gridH}</span></div>
-      <div class="info-row"><span>Model</span><span class="mono">QuickHeightNet</span></div>
+      <div class="info-row"><span>Model</span><span class="mono">DepthAnythingV2</span></div>
     `;
 
   } catch(err) {
